@@ -49,10 +49,15 @@ cl_kicker:'نستقبل المرضى الآن في دبي',cl_h2:'المركز �
 rv_kicker:'آراء المرضى',rv_h2:'بكلماتهم. <em>منشورة على Google.</em>',
 ct_kicker:'احجز استشارتك',ct_h2:'رعاية أسنانك تبدأ <em>بحوار.</em>',ct_p:'سواء كنت بحاجة إلى عناية روتينية أو لديك مشكلة محددة أو تفتقد سنًّا أو تفكر في علاج تجميلي، فالاستشارة هي الخطوة الأولى لفهم خياراتك.',
 ct_visit:'الموقع',ct_wa:'الهاتف / واتساب',ct_mail:'البريد الإلكتروني',ct_ig:'إنستغرام',
-f_title:'استفسار',f_name:'الاسم',f_phone:'رقم الهاتف',f_email:'البريد الإلكتروني',f_msg:'الرسالة',f_send:'أرسل عبر واتساب',
+f_title:'استفسار',f_name:'اسمك',f_email:'البريد الإلكتروني',f_service:'الخدمة التي تهمّك',f_pick:'اختر خدمة',f_unsure:'لست متأكدًا بعد',f_when:'متى ترغب في الحضور؟',w1:'في أقرب وقت',w2:'خلال الأسابيع القادمة',w3:'أستكشف الخيارات فقط',f_msg:'هل هناك ما ينبغي أن تعرفه د. هبة؟ (اختياري)',f_send:'تابع إلى واتساب',
+l_title:'أخبر د. هبة بما تحتاجه',l_sub:'بعدها يفتح واتساب ورسالتك جاهزة للإرسال.',l_done:'رسالتك جاهزة.',l_done_p:'اضغط إرسال في واتساب وسيصلك الرد هناك.',l_again:'افتح واتساب',
+m_hello:'مرحبًا د. هبة، أرغب في حجز استشارة.',m_name:'الاسم',m_email:'البريد الإلكتروني',m_service:'الخدمة',m_when:'الموعد المفضّل',m_note:'ملاحظة',
+e_req:'يرجى إدخال اسمك وبريد إلكتروني صحيح والخدمة التي تهمّك.',n_ready:'رسالتك جاهزة في واتساب، اضغط إرسال.',
 foot_line:'خبرة تثق بها. رعاية مصمّمة حولك.',rights:'جميع الحقوق محفوظة.'
 };
-var EN={};
+var EN={
+m_hello:"Hello Dr. Hiba, I'd like to book a consultation.",m_name:'Name',m_email:'Email',m_service:'Interested in',m_when:'Timing',m_note:'Note',
+e_req:'Please add your name, a valid email and the service you are interested in.',n_ready:'Your message is ready in WhatsApp. Press send.'};
 $$('[data-i18n],[data-i18n-html]').forEach(function(e){var k=e.getAttribute('data-i18n')||e.getAttribute('data-i18n-html');EN[k]=e.hasAttribute('data-i18n-html')?e.innerHTML:e.textContent});
 function setLang(l){
   var els=$$('[data-i18n],[data-i18n-html]');
@@ -62,8 +67,9 @@ function setLang(l){
   document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';
   $('#langBtn').textContent=l==='ar'?'English':'العربية';
   $('#langBtn').setAttribute('aria-label',l==='ar'?'Switch language to English':'Switch language to Arabic');
+  $('#leadClose').setAttribute('aria-label',l==='ar'?'إغلاق':'Close');
   try{localStorage.setItem('lang',l)}catch(e){}
-  buildStatement();noWidow();
+  buildStatement();noWidow();svcFit();
 }
 $('#langBtn').addEventListener('click',function(){setLang(document.documentElement.lang==='ar'?'en':'ar')});
 
@@ -123,12 +129,33 @@ var cio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isInt
   (function f(n){var p=Math.min(1,(n-s)/1600);e.target.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(s)})},{threshold:.6});
 $$('[data-count]').forEach(function(e){cio.observe(e)});
 
-/* ---------- treatments tabs ---------- */
-var tabs=$$('.tab'),panels=$$('.panel');
-function pick(i,focus){tabs.forEach(function(t,k){var on=k===i;t.classList.toggle('on',on);t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;if(on&&focus)t.focus()});panels.forEach(function(p,k){p.classList.toggle('on',k===i);p.hidden=k!==i})}
-tabs.forEach(function(t,i){t.addEventListener('click',function(){pick(i)});t.addEventListener('mouseenter',function(){if(matchMedia('(hover:hover)').matches)pick(i)});
-  t.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowDown'||k==='ArrowRight'){e.preventDefault();pick((i+1)%tabs.length,true)}if(k==='ArrowUp'||k==='ArrowLeft'){e.preventDefault();pick((i+tabs.length-1)%tabs.length,true)}})});
-pick(0);
+/* ---------- services: photo accordion ---------- */
+var svc=$('#svc'),svcItems=$$('.svc-item'),wide=matchMedia('(min-width:1280px)'),svcHover;
+function svcPick(i,focus){
+  svcItems.forEach(function(it,k){var on=k===i,h=$('.svc-head',it);it.classList.toggle('on',on);h.setAttribute('aria-expanded',on);if(on&&focus)h.focus()});
+}
+function svcFit(){
+  if(!wide.matches){svc.style.removeProperty('--bh');return}
+  svc.style.setProperty('--bh','0px');
+  var m=0;$$('.svc-body',svc).forEach(function(b){m=Math.max(m,b.offsetHeight)});
+  svc.style.setProperty('--bh',m+'px');
+}
+svcItems.forEach(function(it,i){
+  var h=$('.svc-head',it);
+  h.addEventListener('click',function(){
+    svcPick(i);
+    if(!wide.matches){var t=it.getBoundingClientRect().top;if(t<70)window.scrollBy({top:t-90,behavior:'auto'})}
+  });
+  it.addEventListener('mouseenter',function(){if(wide.matches&&matchMedia('(hover:hover)').matches){clearTimeout(svcHover);svcHover=setTimeout(function(){svcPick(i)},110)}});
+  it.addEventListener('mouseleave',function(){clearTimeout(svcHover)});
+  h.addEventListener('keydown',function(e){
+    var k=e.key,rtl=document.documentElement.dir==='rtl',n=svcItems.length;
+    var next=k==='ArrowDown'||k===(rtl?'ArrowLeft':'ArrowRight'),prev=k==='ArrowUp'||k===(rtl?'ArrowRight':'ArrowLeft');
+    if(next||prev){e.preventDefault();svcPick((i+(next?1:n-1))%n,true)}
+  });
+});
+window.addEventListener('resize',svcFit);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(svcFit);
 
 /* ---------- before / after ---------- */
 var range=$('#baRange'),wrap=$('#baBeforeWrap'),handle=$('#baHandle');
@@ -146,7 +173,7 @@ var pars=$$('[data-parallax]'),bg=$('[data-parallax-bg]');
 function par(){
   if(reduce)return;
   pars.forEach(function(e){var r=e.getBoundingClientRect(),c=r.top+r.height/2-innerHeight/2;e.style.translate='0 '+(c*+e.getAttribute('data-parallax')*-1)+'px'});
-  if(bg){var r=bg.parentNode.getBoundingClientRect();bg.style.transform='translateY('+((r.top+r.height/2-innerHeight/2)*-.12)+'px)'}
+  if(bg){var r=bg.parentNode.getBoundingClientRect();bg.style.transform='translateY('+((r.top+r.height/2-innerHeight/2)*-.05)+'px)'}
 }
 if(matchMedia('(hover:hover)').matches&&!reduce){
   $$('.magnetic').forEach(function(b){b.addEventListener('mousemove',function(e){var r=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.18)+'px,'+((e.clientY-r.top-r.height/2)*.3)+'px)'});b.addEventListener('mouseleave',function(){b.style.transform=''})});
@@ -157,20 +184,53 @@ if(matchMedia('(hover:hover)').matches&&!reduce){
 (function(){var t=$('.marquee .track');t.innerHTML+=t.innerHTML;t.style.paddingInline='0';
   var r=$('#rvTrack');Array.prototype.slice.call(r.children).forEach(function(c){var k=c.cloneNode(true);k.setAttribute('aria-hidden','true');r.appendChild(k)})})();
 
-/* ---------- enquiry form -> WhatsApp ---------- */
-$('#enquiry').addEventListener('submit',function(e){
-  e.preventDefault();var f=e.target,n=f.name.value.trim(),p=f.phone.value.trim(),ok=true;
-  [f.name,f.phone].forEach(function(i){var bad=!i.value.trim();i.classList.toggle('bad',bad);if(bad)ok=false});
-  var note=$('#formNote');
-  if(!ok){note.textContent=document.documentElement.lang==='ar'?'يرجى إدخال الاسم ورقم الهاتف.':'Please add your name and phone number.';return}
-  var m='Hello Dr. Hiba, my name is '+n+'. Phone: '+p+(f.email.value?'. Email: '+f.email.value:'')+(f.msg.value?'. '+f.msg.value:'')+'.';
-  window.open(WA+encodeURIComponent(m),'_blank','noopener');
-  note.textContent=document.documentElement.lang==='ar'?'تم فتح واتساب برسالتك الجاهزة.':'WhatsApp opened with your message ready to send.';
+/* ---------- WhatsApp first: every WhatsApp link asks for details, then opens the chat prefilled ---------- */
+var lead=$('#lead'),leadForm=$('#leadForm'),leadStep=$('#leadStep'),leadDone=$('#leadDone'),leadAgain=$('#leadAgain');
+function T(k){return (document.documentElement.lang==='ar'?AR:EN)[k]}
+function openLead(service){
+  leadStep.hidden=false;leadDone.hidden=true;
+  $('.form-note',leadForm).textContent='';
+  $$('.bad',leadForm).forEach(function(i){i.classList.remove('bad');i.removeAttribute('aria-invalid')});
+  if(service)leadForm.service.value=service;
+  if(lead.showModal)lead.showModal();else lead.setAttribute('open','');
+}
+function closeLead(){if(lead.close)lead.close();else lead.removeAttribute('open')}
+document.addEventListener('click',function(e){
+  var a=e.target.closest('a[href^="https://wa.me/"]');
+  if(!a||a.hasAttribute('data-direct'))return;
+  e.preventDefault();openLead(a.getAttribute('data-service'));
+});
+$('#leadClose').addEventListener('click',closeLead);
+lead.addEventListener('click',function(e){if(e.target===lead)closeLead()});
+function optionText(sel){return sel.options[sel.selectedIndex].textContent.trim()}
+function leadMessage(f){
+  var lines=[T('m_hello'),T('m_name')+': '+f.name.value.trim(),T('m_email')+': '+f.email.value.trim(),T('m_service')+': '+optionText(f.service),T('m_when')+': '+optionText(f.when)];
+  if(f.msg.value.trim())lines.push(T('m_note')+': '+f.msg.value.trim());
+  return WA+encodeURIComponent(lines.join('\n'));
+}
+$$('.lead-form').forEach(function(f){
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var note=$('.form-note',f),first=null;
+    [[f.name,!f.name.value.trim()],[f.email,!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value.trim())],[f.service,!f.service.value]].forEach(function(c){
+      c[0].classList.toggle('bad',c[1]);
+      if(c[1]){c[0].setAttribute('aria-invalid','true');first=first||c[0]}else c[0].removeAttribute('aria-invalid');
+    });
+    if(first){note.textContent=T('e_req');first.focus();return}
+    var url=leadMessage(f),w=window.open(url,'_blank');
+    if(w){try{w.opener=null}catch(x){}}
+    if(f===leadForm){
+      leadAgain.href=url;leadStep.hidden=true;leadDone.hidden=false;
+    }else{
+      note.textContent=T('n_ready')+' ';
+      var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';a.setAttribute('data-direct','');a.textContent=T('l_again');note.appendChild(a);
+    }
+  });
 });
 
 /* ---------- widow guard: glue the last two words of every text block ---------- */
 function noWidow(){
-  $$('h1,h2,h3,h4,p,li,blockquote,.tab b,.statement,.not-sure,.foot-line').forEach(function(el){
+  $$('h1,h2,h3,h4,p,li,blockquote,.statement,.not-sure,.foot-line').forEach(function(el){
     var tn=[],w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),n;
     while((n=w.nextNode()))tn.push(n);
     var i=tn.length-1;
@@ -191,6 +251,6 @@ function noWidow(){
 /* ---------- init ---------- */
 var saved=null;try{saved=localStorage.getItem('lang')}catch(e){}
 if(saved==='ar')setLang('ar');else buildStatement();
-noWidow();
+noWidow();svcFit();
 onScroll();
 })();
