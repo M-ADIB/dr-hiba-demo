@@ -330,11 +330,12 @@ body:has(.wa-lead[open]){overflow:hidden}
 .split.in .ch>span{transform:none}
 
 /* responsive */
-@media (max-width:1279px){
-  .svc{display:grid;width:min(1240px,100% - var(--gut)*2);height:auto}
+@media (max-width:1099px){
+  .svc{display:grid;width:min(760px,100% - var(--gut)*2);height:auto}
+  .svc-media img{object-position:50% 40%}
   .svc-item{flex:none}
   .svc-head{position:relative;display:block;height:136px}
-  .svc-item.on .svc-head{height:clamp(230px,44vw,380px)}
+  .svc-item.on .svc-head{height:clamp(230px,56vw,420px)}
   .svc-media,.svc-item.on .svc-media{bottom:0}
   .svc-label,.svc-item.on .svc-label{inset-inline:20px;bottom:16px}
   .svc-label{grid-template-columns:auto 1fr;align-items:baseline;gap:12px}

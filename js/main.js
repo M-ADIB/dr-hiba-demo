@@ -130,7 +130,7 @@ var cio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isInt
 $$('[data-count]').forEach(function(e){cio.observe(e)});
 
 /* ---------- services: photo accordion ---------- */
-var svc=$('#svc'),svcItems=$$('.svc-item'),wide=matchMedia('(min-width:1280px)'),svcHover;
+var svc=$('#svc'),svcItems=$$('.svc-item'),wide=matchMedia('(min-width:1100px)'),svcHover;
 function svcPick(i,focus){
   svcItems.forEach(function(it,k){var on=k===i,h=$('.svc-head',it);it.classList.toggle('on',on);h.setAttribute('aria-expanded',on);if(on&&focus)h.focus()});
 }
