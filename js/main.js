@@ -63,7 +63,7 @@ function setLang(l){
   $('#langBtn').textContent=l==='ar'?'English':'العربية';
   $('#langBtn').setAttribute('aria-label',l==='ar'?'Switch language to English':'Switch language to Arabic');
   try{localStorage.setItem('lang',l)}catch(e){}
-  buildStatement();
+  buildStatement();noWidow();
 }
 $('#langBtn').addEventListener('click',function(){setLang(document.documentElement.lang==='ar'?'en':'ar')});
 
@@ -96,14 +96,11 @@ function onScroll(){
   var y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;
   prog.style.transform='scaleX('+(h>0?y/h:0)+')';
   nav.classList.toggle('scrolled',y>30);
-  nav.classList.toggle('hide',y>lastY&&y>500&&!$('#navLinks').classList.contains('open'));
+  nav.classList.toggle('hide',y>lastY&&y>500);
   lastY=y;
   stmt();par();
 }
 window.addEventListener('scroll',onScroll,{passive:true});
-var burger=$('#burger'),links=$('#navLinks');
-burger.addEventListener('click',function(){var o=links.classList.toggle('open');burger.setAttribute('aria-expanded',o);document.body.classList.toggle('lock',o)});
-$$('a',links).forEach(function(a){a.addEventListener('click',function(){links.classList.remove('open');burger.setAttribute('aria-expanded','false');document.body.classList.remove('lock')})});
 
 /* ---------- statement scroll highlight ---------- */
 var words=[];
@@ -171,8 +168,29 @@ $('#enquiry').addEventListener('submit',function(e){
   note.textContent=document.documentElement.lang==='ar'?'تم فتح واتساب برسالتك الجاهزة.':'WhatsApp opened with your message ready to send.';
 });
 
+/* ---------- widow guard: glue the last two words of every text block ---------- */
+function noWidow(){
+  $$('h1,h2,h3,h4,p,li,blockquote,.tab b,.statement,.not-sure,.foot-line').forEach(function(el){
+    var tn=[],w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),n;
+    while((n=w.nextNode()))tn.push(n);
+    var i=tn.length-1;
+    while(i>=0&&!/\S/.test(tn[i].textContent))i--;
+    if(i<0)return;
+    var t=tn[i].textContent;
+    if(/ \S+\s*$/.test(t))return;
+    var m=t.match(/(\S)[ \t\n]+(\S+\s*)$/);
+    if(m){tn[i].textContent=t.replace(/[ \t\n]+(\S+\s*)$/,' $1');return}
+    for(var j=i-1;j>=0;j--){
+      var s=tn[j].textContent;
+      if(!s)continue;
+      if(/\s$/.test(s)){tn[j].textContent=s.replace(/\s+$/,' ')}
+      break;
+    }
+  });
+}
 /* ---------- init ---------- */
 var saved=null;try{saved=localStorage.getItem('lang')}catch(e){}
 if(saved==='ar')setLang('ar');else buildStatement();
+noWidow();
 onScroll();
 })();
