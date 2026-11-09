@@ -113,7 +113,7 @@ html[lang=ar] .trust span{letter-spacing:0;font-size:.85rem}
 @keyframes bob{to{translate:0 -10px}}
 .spin{position:absolute;inset-inline-end:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:var(--ink);display:grid;place-items:center}
 .spin>svg:first-child{position:absolute;inset:0;width:100%;height:100%;animation:rot 22s linear infinite}
-.spin text{font-size:10.5px;letter-spacing:.18em;fill:var(--gold2);font-family:var(--f-body);font-weight:600}
+.spin text{font-size:9px;letter-spacing:0;fill:var(--gold2);font-family:var(--f-body);font-weight:600}
 .spin-tooth{width:28px;height:33px;position:relative}
 @keyframes rot{to{transform:rotate(360deg)}}
 .scroll-cue{position:absolute;bottom:22px;inset-inline-start:50%;width:26px;height:42px;border:1.5px solid rgba(11,28,44,.35);border-radius:14px;translate:-50% 0}
